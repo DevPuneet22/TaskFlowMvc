@@ -76,6 +76,13 @@ public class LoginModel(
 
         if (user.IsDisabled)
         {
+            if (string.Equals(user.DisabledReason, AuthFlowConstants.PendingRegistrationOtpReason, StringComparison.Ordinal))
+            {
+                await securityService.RecordLoginActivityAsync(user.Id, normalizedEmail, LoginActivityType.LoginFailed, HttpContext, "Pending registration OTP verification.");
+                TempData["Info"] = "Complete OTP verification to activate your account.";
+                return RedirectToPage("./RegisterOtp", new { userId = user.Id, email = user.Email, returnUrl });
+            }
+
             await securityService.RecordLoginActivityAsync(user.Id, normalizedEmail, LoginActivityType.LoginFailed, HttpContext, "User disabled.");
             ModelState.AddModelError(string.Empty, "Your account is disabled. Contact an administrator.");
             return Page();

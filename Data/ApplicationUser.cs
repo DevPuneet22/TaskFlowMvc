@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +10,13 @@ public class ApplicationUser : IdentityUser
 {
     private static readonly Regex DisplayNameSeparatorRegex = new(@"[._\-]+", RegexOptions.Compiled);
 
-    public string DisplayName => BuildDisplayName(UserName, Email);
+    public string DisplayName => BuildDisplayName(FirstName, LastName, UserName, Email);
+
+    [StringLength(80)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [StringLength(80)]
+    public string LastName { get; set; } = string.Empty;
 
     public bool IsDisabled { get; set; }
     public DateTime? DisabledAtUtc { get; set; }
@@ -31,6 +38,20 @@ public class ApplicationUser : IdentityUser
     public List<FileAttachment> UploadedFiles { get; set; } = new();
     public List<TimeEntry> TimeEntries { get; set; } = new();
 
+    public static string BuildDisplayName(string? firstName, string? lastName, string? userName, string? email)
+    {
+        var fullName = string.Join(" ", new[] { firstName, lastName }
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s!.Trim()));
+
+        if (!string.IsNullOrWhiteSpace(fullName))
+        {
+            return NormalizeWords(fullName);
+        }
+
+        return BuildDisplayName(userName, email);
+    }
+
     public static string BuildDisplayName(string? userName, string? email)
     {
         var raw = !string.IsNullOrWhiteSpace(userName)
@@ -45,12 +66,17 @@ public class ApplicationUser : IdentityUser
         }
 
         var cleaned = DisplayNameSeparatorRegex.Replace(localPart, " ").Trim();
+        return NormalizeWords(cleaned);
+    }
+
+    private static string NormalizeWords(string value)
+    {
+        var cleaned = (value ?? string.Empty).Trim();
         if (string.IsNullOrWhiteSpace(cleaned))
         {
             return "User";
         }
 
-        var titleCase = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(cleaned.ToLowerInvariant());
-        return titleCase;
+        return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(cleaned.ToLowerInvariant());
     }
 }

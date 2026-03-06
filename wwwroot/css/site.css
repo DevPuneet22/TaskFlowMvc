@@ -571,6 +571,24 @@ code {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+.auth-shell {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.auth-card {
+  border: 1px solid #dce4f3;
+  border-radius: 16px;
+}
+
+.auth-aside {
+  border: 1px solid #dce4f3;
+  border-radius: 14px;
+  padding: 1.1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
+}
+
 @media (max-width: 1199px) {
   .tf-main-header,
   .tf-main-content,

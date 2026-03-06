@@ -6,9 +6,13 @@ TaskFlow MVC is an ASP.NET Core MVC app for collaborative team, project, and tas
 
 ### Authentication and identity
 - ASP.NET Core Identity login/register/logout.
+- Custom registration form that captures first name, last name, phone number, email, and password.
+- Enhanced login and OTP screens with improved UI.
 - Password policy and account lockout policy.
-- Optional Google OAuth login (enabled only when keys are configured).
+- Optional social logins: Google, GitHub, LinkedIn (enabled only when keys are configured).
 - Email OTP login flow using Identity 2FA email tokens (`Login` -> `LoginWithOtp`).
+- Registration OTP verification flow (`Register` -> `RegisterOtp`) with account activation after OTP validation.
+- Registration emails include account-created notice and OTP code delivery.
 - Optional `RequireConfirmedAccount` behavior from config.
 - Automatic verification email reminder filter for signed-in, unconfirmed users (once per session).
 
@@ -108,6 +112,10 @@ Main settings are in `appsettings.json` / `appsettings.Development.json`:
 - `Authentication:EnableEmailOtp2fa`
 - `Authentication:Google:ClientId`
 - `Authentication:Google:ClientSecret`
+- `Authentication:GitHub:ClientId`
+- `Authentication:GitHub:ClientSecret`
+- `Authentication:LinkedIn:ClientId`
+- `Authentication:LinkedIn:ClientSecret`
 - `Email:Smtp:*` (for OTP/notification/invite emails)
 
 Use user-secrets for sensitive values:
@@ -116,6 +124,10 @@ Use user-secrets for sensitive values:
 dotnet user-secrets init
 dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id"
 dotnet user-secrets set "Authentication:Google:ClientSecret" "your-client-secret"
+dotnet user-secrets set "Authentication:GitHub:ClientId" "your-github-client-id"
+dotnet user-secrets set "Authentication:GitHub:ClientSecret" "your-github-client-secret"
+dotnet user-secrets set "Authentication:LinkedIn:ClientId" "your-linkedin-client-id"
+dotnet user-secrets set "Authentication:LinkedIn:ClientSecret" "your-linkedin-client-secret"
 dotnet user-secrets set "Email:Smtp:Host" "smtp.gmail.com"
 dotnet user-secrets set "Email:Smtp:Port" "587"
 dotnet user-secrets set "Email:Smtp:Username" "your-email"
@@ -124,6 +136,11 @@ dotnet user-secrets set "Email:Smtp:FromEmail" "your-email"
 dotnet user-secrets set "Email:Smtp:FromName" "TaskFlow MVC"
 dotnet user-secrets set "Email:Smtp:EnableSsl" "true"
 ```
+
+OAuth callback URLs used by this app:
+- Google: `https://localhost:5001/signin-google`
+- GitHub: `https://localhost:5001/signin-github`
+- LinkedIn: `https://localhost:5001/signin-linkedin`
 
 ## Run locally
 
@@ -135,7 +152,7 @@ dotnet build .\TaskFlowMvc.csproj
 dotnet run --launch-profile https
 ```
 
-Launch profile is configured with dynamic ports (`https://127.0.0.1:0;http://127.0.0.1:0`), so use the exact URL shown by `dotnet run` output.
+Launch profile uses fixed local URLs: `https://localhost:5001` and `http://localhost:5000`.
 
 ## Useful commands
 
@@ -143,4 +160,10 @@ Launch profile is configured with dynamic ports (`https://127.0.0.1:0;http://127
 dotnet build .\TaskFlowMvc.csproj
 dotnet ef migrations list --project .\TaskFlowMvc.csproj
 dotnet run --launch-profile https
+```
+
+If you get "Failed to bind to address ... address already in use", use:
+
+```powershell
+.\restart-dev.ps1
 ```
